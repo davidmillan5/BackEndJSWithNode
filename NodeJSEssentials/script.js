@@ -205,3 +205,216 @@ console.log(bufferAlloc);
 console.log('Buffer 8:', buffer8, 'Buffer 9:', buffer9);
 console.log(bufferConcat);
 console.log(bufferString);
+
+// The FS Module
+
+/*
+
+All of the data on a computer is organized and accessed through a filesystem. When running 
+JavaScript code on a browser, it’s important for a script to have only limited access to a user’s 
+filesystem. This technique of isolating some applications from others is known as sandboxing. 
+Sandboxing protects users from malicious programs and invasions of privacy.
+
+In the back-end, however, less restricted interaction with the filesystem is essential. The Node 
+fs core module is an API for interacting with the file system. It was modeled after the POSIX 
+standard for interacting with the filesystem.
+
+Each method available through the fs module has a synchronous version and an asynchronous version. 
+One method available on the fs core module is the .readFile() method which reads data from a 
+provided file:
+
+
+*/
+
+const fs = require('fs');
+
+let readDataCallback = (err, data) => {
+  if (err) {
+    console.log(`Something went wrong: ${err}`);
+  } else {
+    console.log(`Provided file contained: ${data}`);
+  }
+};
+
+fs.readFile('./file.txt', 'utf-8', readDataCallback);
+
+/*
+
+Let’s walk through the example above:
+
+We required in the fs core module.
+
+We define an error-first callback function which expects an error to be passed as the first argument 
+and data as the second. If the error is present, the function will print Something went wrong: 
+${err}, otherwise, it will print Provided file contained: ${data}.
+
+We invoked the .readFile() method with three arguments:
+
+The first argument is a string that contains a path to the file file.txt.
+
+The second argument is a string specifying the file’s character encoding 
+(usually ‘utf-8’ for text files).
+
+The third argument is the callback function to be invoked when the asynchronous task of 
+reading from the file system is complete. Node will pass the contents of file.txt into the 
+provided callback as its second argument.
+
+
+*/
+
+const fs = require('fs');
+
+let secretWord = null;
+
+let readDataCallback2 = (err, data) => {
+  if (err) {
+    console.log(`Something went wrong: ${err}`);
+  } else {
+    console.log(`Provided file contained: ${data}`);
+  }
+};
+
+//fs.readFile('./fileOne.txt', 'utf-8', readDataCallback);
+//fs.readFile('./anotherFile.txt', 'utf-8', readDataCallback);
+fs.readFile('./finalFile.txt', 'utf-8', readDataCallback2);
+
+secretWord = 'cheeseburgerpizzabagels';
+
+// Readable Streams
+
+/*
+
+In the previous exercise, we practiced reading the contents of entire files into our JavaScript 
+programs. In more realistic scenarios, data isn’t processed all at once but rather sequentially, 
+piece by piece, in what is known as a stream. Streaming data is often preferable since you don’t 
+need enough RAM to process all the data at once nor do you need to have all the data on hand to 
+begin processing it.
+
+One of the simplest uses of streams is reading and writing to files line-by-line. To read files 
+line-by-line, we can use the .createInterface() method from the readline core module. 
+.createInterface() returns an EventEmitter set up to emit 'line' events:
+
+
+*/
+
+const readline = require('readline');
+const fs = require('fs');
+
+const myInterface = readline.createInterface({
+  input: fs.createReadStream('text.txt'),
+});
+
+myInterface.on('line', (fileLine) => {
+  console.log(`The line read: ${fileLine}`);
+});
+
+/*
+
+Let’s walk through the above code:
+
+We require in the readline and fs core modules.
+
+We assign to myInterface the returned value from invoking readline.createInterface() with an object 
+containing our designated input.
+
+We set our input to fs.createReadStream('text.txt') which will create a stream from the text.txt 
+file.
+
+Next we assign a listener callback to execute when line events are emitted. A 'line' event will be 
+emitted after each line from the file is read.
+
+Our listener callback will log to the console 'The line read: [fileLine]', where [fileLine] is the 
+line just read.
+
+Let’s practice making a readable stream.
+
+*/
+
+const readline = require('readline');
+const fs = require('fs');
+
+let settings = {
+  input: fs.createReadStream('shoppingList.txt'),
+};
+
+const myInterface2 = readline.createInterface(settings);
+
+const printData = (data) => {
+  console.log(`Item: ${data}`);
+};
+
+myInterface2.on('line', printData);
+
+// Writeable Streams
+
+/*
+
+In the previous exercise, we were reading data from a stream, but we can also write to streams! 
+We can create a writeable stream to a file using the fs.createWriteStream() method:
+
+*/
+
+const fs = require('fs');
+
+const fileStream = fs.createWriteStream('output.txt');
+
+fileStream.write('This is the first line!');
+fileStream.write('This is the second line!');
+fileStream.end();
+
+/*
+
+In the code above, we set the output file as output.txt. Then we .write() lines to the file. 
+Unlike a readable stream, which ends when it has no more data to read, a writable stream could 
+remain open indefinitely. We can indicate the end of a writable stream with the .end() method.
+
+Let’s combine our knowledge of readable and writable streams to create a program which reads from 
+one text file and then writes to another.
+
+*/
+
+const readline = require('readline');
+const fs = require('fs');
+
+const myInterface3 = readline.createInterface({
+  input: fs.createReadStream('shoppingList.txt'),
+});
+
+const fileStream3 = fs.createWriteStream('shoppingResults.txt');
+
+const transformData = (line) => {
+  fileStream3.write(`They were out of: ${line}\n`);
+  fileStream3.end();
+};
+
+myInterface3.on('line', transformData);
+
+// Timer Module
+
+/*
+
+There are times when we want some of our code to be executed at a specified point in time. This is 
+what the timers module is used for. Like the Buffer module, it is not necessary to use the require() 
+import statement as the methods of the timer module are global.
+
+You may already be familiar with some timer functions such as, setTimeout() and setInterval(). 
+Timer functions in Node.js behave similarly to how they work in front-end JavaScript programs, but 
+the difference is that they are added to the Node.js event loop. This means that the timer functions 
+are scheduled and put into a queue. This queue is processed at every iteration of the event loop. 
+If a timer function is executed outside of a module, the behavior will be random (non-deterministic).
+
+The setImmediate() function is often compared with the setTimeout() function. When setImmediate() 
+is called, it executes the specified callback function after the current (poll phase) is completed.
+The method accepts two parameters: the callback function (required) and arguments for the callback 
+function (optional). If you instantiate multiple setImmediate() functions, they will be queued for 
+execution in the order that they were created.
+
+*/
+
+setImmediate(() => {
+  console.log('Hello! My name is Codey.');
+});
+
+setImmediate(() => {
+  console.log('I got called right away!');
+});
