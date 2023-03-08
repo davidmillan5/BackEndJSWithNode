@@ -102,3 +102,12 @@ passed in as the first argument to the callback function. If no error was thrown
 undefined.
 
 */
+
+const errorFirstCallback = (err, data) => {
+  if (err) {
+    console.log(`There WAS an error: ${err}`);
+  } else {
+    // err was falsy
+    console.log(`There was NO error. Event data: ${data}`);
+  }
+};
