@@ -57,3 +57,48 @@ let myEmitter2 = new events.EventEmitter();
 myEmitter2.on('celebration', listenerCallback);
 
 myEmitter2.emit('celebration', 'celebrate');
+
+// User Input/Output
+
+/*
+
+If you’ve worked with JavaScript before, you’re likely familiar with the concept of input/output even if you haven’t 
+heard it called that. At its most abstract, output is any data or feedback that a computer provides (like to a human 
+  user), while input is data provided to the computer. When we use console.log() we prompt the computer to output 
+  information to the console. In the Node environment, the console is the terminal, and the console.log() method is a 
+  “thin wrapper” on the .stdout.write() method of the process object. stdout stands for standard output.
+
+In Node, we can also receive input from a user through the terminal using the stdin.on() method on the process object:
+
+*/
+
+process.stdin.on('data', (userInput) => {
+  let input = userInput.toString();
+  console.log(input);
+});
+
+/*
+
+Here, we were able to use .on() because under the hood process.stdin is an instance of EventEmitter. When a user 
+enters text into the terminal and hits enter, a 'data' event will be fired and our anonymous listener callback will 
+be invoked. The userInput we receive is an instance of the Node Buffer class, so we convert it to a string before 
+printing.
+
+*/
+
+// The Error Module
+
+/*
+
+The Node environment’s error module has all the standard JavaScript errors such as EvalError, SyntaxError, RangeError, 
+ReferenceError, TypeError, and URIError as well as the JavaScript Error class for creating new error instances. Within 
+our own code, we can generate errors and throw them, and, with synchronous code in Node, we can use error handling 
+techniques such as try...catch statements. Note that the error module is within the global scope—there is no need to 
+import the module with the require() statement.
+
+Many asynchronous Node APIs use error-first callback functions—callback functions which have an error as the first 
+expected argument and the data as the second argument. If the asynchronous task results in an error, it will be 
+passed in as the first argument to the callback function. If no error was thrown, the first argument will be 
+undefined.
+
+*/
